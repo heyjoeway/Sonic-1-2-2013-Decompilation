@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
 
 NAME		=  s122013
-SUFFIX		= 
+SUFFIX		=
 PKGCONFIG	=  pkg-config
 DEBUG		?= 0
 STATIC		?= 1
@@ -130,7 +130,7 @@ $(OBJDIR)/%.o: %.cpp
 
 $(BINPATH): $(OBJDIR) $(OBJECTS)
 	@echo -n Linking...
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS) $(SYSLIBS)
 	@echo " Done!"
 	$(STRIP) $@
 

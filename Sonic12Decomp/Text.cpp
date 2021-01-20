@@ -120,9 +120,9 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 {
     FileInfo info;
     char strBuf[0x100];
-    int fileBuffer = 0;
-    int count      = 0;
-    int strLen     = 0;
+    byte fileBuffer = 0;
+    byte count      = 0;
+    byte strLen     = 0;
     if (LoadFile("Data/Game/GameConfig.bin", &info)) {
         // Name
         FileRead(&strLen, 1);
@@ -196,7 +196,7 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 
         // Categories
         for (int c = 1; c <= 4; ++c) {
-            int stageCnt = 0;
+            byte stageCnt = 0;
             FileRead(&stageCnt, 1);
             for (int s = 0; s < stageCnt; ++s) {
                 //Stage Folder

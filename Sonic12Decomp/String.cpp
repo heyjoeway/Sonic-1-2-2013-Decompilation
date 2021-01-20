@@ -162,7 +162,7 @@ unsigned *md5(const char *msg, int mlen)
         {
             //            unsigned char t;
             WBunion u;
-            u.w = 8 * mlen;
+            u.w = RETRO_LE32(8 * mlen);
             //            t = u.b[0]; u.b[0] = u.b[3]; u.b[3] = t;
             //            t = u.b[1]; u.b[1] = u.b[2]; u.b[2] = t;
             q -= 8;
@@ -180,7 +180,7 @@ unsigned *md5(const char *msg, int mlen)
             o    = O[p];
             for (q = 0; q < 16; q++) {
                 g = (m * q + o) % 16;
-                f = abcd[1] + rol(abcd[0] + fctn(abcd) + k[q + 16 * p] + mm.w[g], rotn[q % 4]);
+                f = abcd[1] + rol(abcd[0] + fctn(abcd) + k[q + 16 * p] + RETRO_LE32(mm.w[g]), rotn[q % 4]);
 
                 abcd[0] = abcd[3];
                 abcd[3] = abcd[2];
@@ -196,7 +196,7 @@ unsigned *md5(const char *msg, int mlen)
         free(msg2);
 
     return h;
-}    
+}
 
 int FindStringToken(const char *string, const char *token, char stopID)
 {
@@ -264,7 +264,7 @@ void GenerateMD5FromString(const char *string, int len, byte *buffer)
     WBunion u;
 
     for (int i = 0; i < 4; ++i) {
-        u.w = d[i];
+        u.w = RETRO_LE32(d[i]);
         for (int c = 0; c < 4; ++c) buffer[(i << 2) + c] = u.b[c];
     }
 }
@@ -524,7 +524,7 @@ void ReadCreditsList(const char *filePath)
                 strCreditsList[creditsListSize] = stringStorage[stringStorePos];
                 StrCopy(dest, "NULL");
                 ReadCreditsLine(dest);
-                
+
                 if (dest[0] != '[' || dest[2] != ']') {
                     advance += 24.0;
                 }

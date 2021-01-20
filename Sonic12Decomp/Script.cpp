@@ -1731,7 +1731,7 @@ bool ConvertStringToInteger(const char *text, int *value)
                 charVal += 10;
                 *value += charVal;
             }
-            
+
         }
         else {
             int strlen = strLength + 1;
@@ -2048,7 +2048,7 @@ void LoadBytecode(int stageListID, int scriptID)
 
     FileInfo info;
     if (LoadFile(scriptPath, &info)) {
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
         int *scrData   = &scriptData[scriptCodePos];
         FileRead(&fileBuffer, 1);
         int scriptDataCount = fileBuffer;

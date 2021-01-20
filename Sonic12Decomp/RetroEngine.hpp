@@ -153,6 +153,7 @@ extern bool usingCWD;
 #include "Text.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
+#include "Endian.hpp"
 
 //Native Entities
 #include "PauseMenu.hpp"
@@ -178,7 +179,7 @@ public:
     int frameSkipSetting = 0;
     int frameSkipTimer   = 0;
 
-    
+
     // Ported from RSDKv5
     bool devMenu = false;
     int startList  = 0;
