@@ -298,7 +298,7 @@ void RetroEngine::Init()
         gameType = GAME_SONIC2;
     }
 
-    
+
     ReadSaveRAMData();
     if (saveRAM[0x100] != Engine.gameType) {
         saveRAM[0x100] = Engine.gameType;
@@ -390,8 +390,8 @@ void RetroEngine::Run()
 bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
-    int fileBuffer  = 0;
-    int fileBuffer2 = 0;
+    byte fileBuffer  = 0;
+    byte fileBuffer2 = 0;
     char strBuffer[0x40];
 
     bool loaded = LoadFile(filePath, &info);
@@ -411,7 +411,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read Obect Names
-        int objectCount = 0;
+        byte objectCount = 0;
         FileRead(&objectCount, 1);
         for (int o = 0; o < objectCount; ++o) {
             FileRead(&fileBuffer, 1);
@@ -424,7 +424,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             FileRead(&strBuffer, fileBuffer);
         }
 
-        int varCount = 0;
+        byte varCount = 0;
         FileRead(&varCount, 1);
         globalVariablesCount = varCount;
         for (int v = 0; v < varCount; ++v) {
@@ -445,7 +445,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read SFX
-        int globalSFXCount = 0;
+        byte globalSFXCount = 0;
         FileRead(&globalSFXCount, 1);
         for (int s = 0; s < globalSFXCount; ++s) { // SFX Names
             FileRead(&fileBuffer, 1);
@@ -459,7 +459,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read Player Names
-        int playerCount = 0;
+        byte playerCount = 0;
         FileRead(&playerCount, 1);
         for (int p = 0; p < playerCount; ++p) {
             FileRead(&fileBuffer, 1);
@@ -474,7 +474,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             else if (c == 3)
                 cat = 2;
             stageListCount[cat] = 0;
-            FileRead(&stageListCount[cat], 1);
+            byte count = 0;
+            FileRead(&count, 1);
+            stageListCount[cat] = count;
             for (int s = 0; s < stageListCount[cat]; ++s) {
 
                 // Read Stage Folder
@@ -501,7 +503,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         CloseFile();
     }
 
-    
+
     //These need to be set every time its reloaded
     nativeFunctionCount = 0;
     AddNativeFunction("SetAchievement", SetAchievement);

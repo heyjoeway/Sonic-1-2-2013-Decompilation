@@ -42,8 +42,9 @@ bool CheckRSDKFile(const char *filePath)
         Engine.usingDataFile = true;
         StrCopy(rsdkName, filePath);
 
-        rsdkContainer.fileCount = 0;
-        fRead(&rsdkContainer.fileCount, 2, 1, cFileHandle);
+        ushort fileCount = 0;
+        fRead(&fileCount, 2, 1, cFileHandle);
+        rsdkContainer.fileCount = RETRO_LE16(fileCount);
         for (int f = 0; f < rsdkContainer.fileCount; ++f) {
             for (int y = 0; y < 16; y += 4) {
                 fRead(&rsdkContainer.files[f].hash[y + 3], 1, 1, cFileHandle);
@@ -52,8 +53,11 @@ bool CheckRSDKFile(const char *filePath)
                 fRead(&rsdkContainer.files[f].hash[y + 0], 1, 1, cFileHandle);
             }
 
-            fRead(&rsdkContainer.files[f].offset, 4, 1, cFileHandle);
-            fRead(&rsdkContainer.files[f].filesize, 4, 1, cFileHandle);
+            int offset, filesize;
+            fRead(&offset, 4, 1, cFileHandle);
+            fRead(&filesize, 4, 1, cFileHandle);
+            rsdkContainer.files[f].offset = RETRO_LE32(offset);
+            rsdkContainer.files[f].filesize = RETRO_LE32(filesize);
 
             rsdkContainer.files[f].encrypted = (rsdkContainer.files[f].filesize & 0x80000000);
             rsdkContainer.files[f].filesize &= 0x7FFFFFFF;
@@ -134,7 +138,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
                 memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
                 memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
             }
-            
+
             fileInfo->readPos           = readPos;
             fileInfo->fileSize          = fileSize;
             fileInfo->vfileSize         = vFileSize;

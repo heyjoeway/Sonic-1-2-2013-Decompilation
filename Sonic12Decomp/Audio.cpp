@@ -68,7 +68,7 @@ int InitAudioPlayback()
     FileInfo info;
     FileInfo infoStore;
     char strBuffer[0x100];
-    int fileBuffer  = 0;
+    byte fileBuffer  = 0;
     int fileBuffer2 = 0;
 
     if (LoadFile("Data/Game/Gameconfig.bin", &info)) {
@@ -84,7 +84,7 @@ int InitAudioPlayback()
         for (int c = 0; c < 0x60; ++c) FileRead(buf, 3);
 
         // Read Obect Names
-        int objectCount = 0;
+        byte objectCount = 0;
         FileRead(&objectCount, 1);
         for (int o = 0; o < objectCount; ++o) {
             FileRead(&fileBuffer, 1);
@@ -97,7 +97,7 @@ int InitAudioPlayback()
             FileRead(&strBuffer, fileBuffer);
         }
 
-        int varCount = 0;
+        byte varCount = 0;
         FileRead(&varCount, 1);
         globalVariablesCount = varCount;
         for (int v = 0; v < varCount; ++v) {
@@ -112,7 +112,9 @@ int InitAudioPlayback()
 
         // Read SFX
         globalSFXCount = 0;
-        FileRead(&globalSFXCount, 1);
+        byte sfxCount;
+        FileRead(&sfxCount, 1);
+        globalSFXCount = sfxCount;
         for (int s = 0; s < globalSFXCount; ++s) { // SFX Names
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
@@ -397,10 +399,10 @@ bool PlayMusic(int track, int musStartPos)
         StopMusic();
         return false;
     }
-    
+
     if (musInfo.loaded)
         StopMusic();
-    
+
     LOCK_AUDIO_DEVICE()
     uint oldPos   = 0;
     uint oldTotal = 0;

@@ -543,8 +543,8 @@ void LoadStageFiles(void)
     StopAllSfx();
     FileInfo infoStore;
     FileInfo info;
-    int fileBuffer  = 0;
-    int fileBuffer2 = 0;
+    byte fileBuffer  = 0;
+    byte fileBuffer2 = 0;
     int scriptID    = 1;
     char strBuffer[0x100];
 
@@ -556,7 +556,7 @@ void LoadStageFiles(void)
         ClearScriptData();
         for (int i = SPRITESHEETS_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
 
-        bool loadGlobals = false;
+        byte loadGlobals = 0;
         if (LoadStageFile("StageConfig.bin", stageListPosition, &info)) {
             FileRead(&loadGlobals, 1);
             CloseFile();
@@ -566,14 +566,14 @@ void LoadStageFiles(void)
             FileRead(&strBuffer, fileBuffer);
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
-            
+
             byte buf[3];
             for (int c = 0; c < 0x60; ++c) {
                 FileRead(buf, 3);
                 SetPaletteEntry(-1, c, buf[0], buf[1], buf[2]);
             }
 
-            int globalObjectCount = 0;
+            byte globalObjectCount = 0;
             FileRead(&globalObjectCount, 1);
             for (int i = 0; i < globalObjectCount; ++i) {
                 FileRead(&fileBuffer2, 1);
@@ -614,7 +614,9 @@ void LoadStageFiles(void)
                 SetPaletteEntry(-1, i, clr[0], clr[1], clr[2]);
             }
 
-            FileRead(&stageSFXCount, 1);
+            byte sfxCount = 0;
+            FileRead(&sfxCount, 1);
+            stageSFXCount = sfxCount;
             for (int i = 0; i < stageSFXCount; ++i) {
                 FileRead(&fileBuffer2, 1);
                 FileRead(strBuffer, fileBuffer2);
@@ -632,7 +634,7 @@ void LoadStageFiles(void)
                 SetFileInfo(&infoStore);
             }
 
-            int stageObjectCount = 0;
+            byte stageObjectCount = 0;
             FileRead(&stageObjectCount, 1);
             for (int i = 0; i < stageObjectCount; ++i) {
                 FileRead(&fileBuffer2, 1);
@@ -680,7 +682,7 @@ void LoadStageFiles(void)
     LoadStageChunks();
     for (int i = 0; i < TRACK_COUNT; ++i) SetMusicTrack("", i, false, 0);
 
-    
+
     memset(objectEntityList, 0, ENTITY_COUNT * sizeof(Entity));
     for (int i = 0; i < ENTITY_COUNT; ++i) {
         objectEntityList[i].drawOrder          = 3;
@@ -723,7 +725,7 @@ void LoadActLayout()
     if (LoadActFile(".bin", stageListPosition, &info)) {
         byte fileBuffer[4];
 
-        int length = 0;
+        byte length = 0;
         FileRead(&length, 1);
         titleCardWord2 = (byte)length;
         for (int i = 0; i < length; ++i) {
@@ -852,7 +854,7 @@ void LoadActLayout()
     }
     stageLayouts[0].type = LAYER_HSCROLL;
     CloseFile();
-    
+
 }
 void LoadStageBackground()
 {
@@ -868,8 +870,8 @@ void LoadStageBackground()
 
     FileInfo info;
     if (LoadStageFile("Backgrounds.bin", stageListPosition, &info)) {
-        int fileBuffer = 0;
-        int layerCount = 0;
+        byte fileBuffer = 0;
+        byte layerCount = 0;
         FileRead(&layerCount, 1);
         FileRead(&hParallax.entryCount, 1);
         for (int i = 0; i < hParallax.entryCount; ++i) {
@@ -883,7 +885,8 @@ void LoadStageBackground()
 
             hParallax.scrollPos[i] = 0;
 
-            FileRead(&hParallax.deform[i], 1);
+            FileRead(&fileBuffer, 1);
+            hParallax.deform[i] = fileBuffer;
         }
 
         FileRead(&vParallax.entryCount, 1);
@@ -898,7 +901,8 @@ void LoadStageBackground()
 
             vParallax.scrollPos[i] = 0;
 
-            FileRead(&vParallax.deform[i], 1);
+            FileRead(&fileBuffer, 1);
+            vParallax.deform[i] = fileBuffer;
         }
 
         for (int i = 1; i < layerCount + 1; ++i) {
@@ -917,7 +921,7 @@ void LoadStageBackground()
             FileRead(&fileBuffer, 1);
             stageLayouts[i].scrollSpeed = fileBuffer << 10;
             stageLayouts[i].scrollPos   = 0;
-            
+
             memset(stageLayouts[i].tiles, 0, TILELAYER_CHUNK_MAX * sizeof(ushort));
             byte *lineScrollPtr = stageLayouts[i].lineScroll;
             memset(stageLayouts[i].lineScroll, 0, 0x7FFF);
@@ -989,7 +993,7 @@ void LoadStageCollisions()
     FileInfo info;
     if (LoadStageFile("CollisionMasks.bin", stageListPosition, &info)) {
 
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
         int tileIndex  = 0;
         for (int t = 0; t < 1024; ++t) {
             for (int p = 0; p < 2; ++p) {
@@ -1158,7 +1162,8 @@ void LoadStageGIFFile(int stageID)
 {
     FileInfo info;
     if (LoadStageFile("16x16Tiles.gif", stageID, &info)) {
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
+        int fileBuffer2 = 0;
 
         SetFilePosition(6); // GIF89a
         FileRead(&fileBuffer, 1);
@@ -1184,17 +1189,17 @@ void LoadStageGIFFile(int stageID)
         FileRead(&fileBuffer, 1);
         while (fileBuffer != ',') FileRead(&fileBuffer, 1); // gif image start identifier
 
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
         FileRead(&fileBuffer, 1);
         bool interlaced = (fileBuffer & 0x40) >> 6;
         if ((unsigned int)fileBuffer >> 7 == 1) {
             int c = 128;
             do {
                 ++c;
-                FileRead(&fileBuffer, 3);
+                FileRead(&fileBuffer2, 3);
             } while (c != 256);
         }
 
@@ -1744,7 +1749,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
         if (targetY > cameraYPos) {
             difY = dif - 32;
             if (difY >= 0) {
-                if (difY >= 17) 
+                if (difY >= 17)
                     difY = 16;
 
                 cameraLockedY = false;
